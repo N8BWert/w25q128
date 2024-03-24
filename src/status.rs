@@ -78,9 +78,12 @@ pub trait ContainsStatus<Status: Debug + Copy + Clone> {
     fn contains_status(&self, status: Status) -> bool;
 }
 
-pub trait CheckForStatus<E: Debug, Status: Debug + Copy + Clone> {
+pub trait CheckForStatus<Status: Debug + Copy + Clone, SPI> where
+    Status: Debug + Copy + Clone, {
+    type Error;
+
     /// Check that the w25q128 module contains the given status.
-    fn check_for_status(&mut self, status: Status) -> Result<bool, E>;
+    fn check_for_status(&mut self, status: Status) -> Result<bool, Self::Error>;
 }
 
 /// Enum to allow access to read the various status registers.

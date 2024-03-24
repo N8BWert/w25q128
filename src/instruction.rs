@@ -39,3 +39,9 @@ pub(crate) enum Instructions {
     EnableReset = 0x66,
     ResetDevice = 0x99,
 }
+
+impl Instructions {
+    pub fn opcode(self) -> u8 {
+        self as u8
+    }
+}
