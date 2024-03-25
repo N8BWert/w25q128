@@ -441,6 +441,12 @@ impl<CSN, SPI, SPIE, GPIOE> StorageModule<CSN, SPI, SPIE, GPIOE> where
         Ok(())
     }
 
+    pub fn leave_qpi(
+        &mut self, spi: &mut SPI, delay: &mut dyn DelayUs<u32>
+    ) -> Result<(), W25Q128Error<SPIE, GPIOE>> {
+        self.write_spi(&[0xFF], spi, delay)
+    }
+
     fn blocking_wait_for_spi(
         &mut self, spi: &mut SPI, delay: &mut dyn DelayUs<u32>
     ) -> Result<(), W25Q128Error<SPIE, GPIOE>> {
