@@ -206,6 +206,7 @@ impl<CSN, SPI, SPIE, GPIOE> StorageModule<CSN, SPI, SPIE, GPIOE> where
         instruction[1] = start_address[0];
         instruction[2] = start_address[1];
         instruction[3] = start_address[2];
+        instruction[4..].copy_from_slice(data);
 
         self.write_spi(instruction.as_slice(), spi, delay)?;
 
