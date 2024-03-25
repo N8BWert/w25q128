@@ -5,7 +5,7 @@
 
 extern crate alloc;
 
-use alloc::vec::Vec;
+use alloc::vec;
 
 use core::marker::PhantomData;
 
@@ -163,7 +163,7 @@ impl<CSN, SPI, SPIE, GPIOE> StorageModule<CSN, SPI, SPIE, GPIOE> where
     ) -> Result<(), W25Q128Error<SPIE, GPIOE>> {
         self.blocking_wait_for_spi(spi, delay)?;
 
-        let mut instruction = Vec::with_capacity(4 + buffer.len());
+        let mut instruction = vec![0; 4 + buffer.len()];
         instruction[0] = Instructions::ReadData.opcode();
         instruction[1] = start_address[0];
         instruction[2] = start_address[1];
@@ -180,7 +180,7 @@ impl<CSN, SPI, SPIE, GPIOE> StorageModule<CSN, SPI, SPIE, GPIOE> where
     ) -> Result<(), W25Q128Error<SPIE, GPIOE>> {
         self.blocking_wait_for_spi(spi, delay)?;
 
-        let mut instruction = Vec::with_capacity(12 + buffer.len());
+        let mut instruction = vec![0; 12 + buffer.len()];
         instruction[0] = Instructions::FastRead.opcode();
         instruction[1] = start_address[0];
         instruction[2] = start_address[1];
@@ -201,7 +201,7 @@ impl<CSN, SPI, SPIE, GPIOE> StorageModule<CSN, SPI, SPIE, GPIOE> where
             self.write_enable(spi, delay)?;
         }
 
-        let mut instruction = Vec::with_capacity(4 + data.len());
+        let mut instruction = vec![0; 4 + data.len()];
         instruction[0] = Instructions::PageProgram.opcode();
         instruction[1] = start_address[0];
         instruction[2] = start_address[1];
@@ -373,13 +373,16 @@ impl<CSN, SPI, SPIE, GPIOE> StorageModule<CSN, SPI, SPIE, GPIOE> where
 
         self.blocking_wait_for_spi(spi, delay)?;
 
-        let mut instructions = Vec::with_capacity(4 + data.len());
+        let mut instructions = vec![0; 4 + data.len()];
         let start = match register {
             SecurityRegister::SecurityRegister1 => [Instructions::ProgramSecurityRegister as u8, 0x00, 0x10, 0x00],
             SecurityRegister::SecurityRegister2 => [Instructions::ProgramSecurityRegister as u8, 0x00, 0x20, 0x00],
             SecurityRegister::SecurityRegister3 => [Instructions::ProgramSecurityRegister as u8, 0x00, 0x30, 0x00],
         };
-        instructions[0..4].copy_from_slice(&start);
+        instructions.push(start[0]);
+        instructions.push(start[1]);
+        instructions.push(start[2]);
+        instructions.push(start[3]);
 
         self.transfer_spi(instructions.as_mut_slice(), spi, delay)
     }
@@ -389,13 +392,16 @@ impl<CSN, SPI, SPIE, GPIOE> StorageModule<CSN, SPI, SPIE, GPIOE> where
     ) -> Result<(), W25Q128Error<SPIE, GPIOE>> {
         self.blocking_wait_for_spi(spi, delay)?;
 
-        let mut instructions = Vec::with_capacity(4 + buffer.len());
+        let mut instructions = vec![0; 4 + buffer.len()];
         let start = match register {
             SecurityRegister::SecurityRegister1 => [Instructions::ReadSecurityRegister as u8, 0x00, 0x10, 0x00],
             SecurityRegister::SecurityRegister2 => [Instructions::ReadSecurityRegister as u8, 0x00, 0x20, 0x00],
             SecurityRegister::SecurityRegister3 => [Instructions::ReadSecurityRegister as u8, 0x00, 0x30, 0x00],
         };
-        instructions[..4].copy_from_slice(&start);
+        instructions.push(start[0]);
+        instructions.push(start[1]);
+        instructions.push(start[2]);
+        instructions.push(start[3]);
 
         self.transfer_spi(instructions.as_mut_slice(), spi, delay)?;
         buffer[..].copy_from_slice(&instructions[4..]);
